@@ -1,7 +1,10 @@
 import logging
+import concurrent.futures as concurrent
 
 from docker.models.containers import Container
 from cloudwatch import cloudwatch
+
+executor = concurrent.ThreadPoolExecutor(max_workers=1) 
 
 def logging_to_aws(
         container: Container,
@@ -30,4 +33,4 @@ def logging_to_aws(
     for line in container.logs(stream=True, follow=True):
         log_line = line.decode("utf-8").strip()
         print(log_line)
-        logger.info(log_line)
+        executor.submit(logger.info, log_line)
